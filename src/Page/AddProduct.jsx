@@ -6,8 +6,8 @@ const categories = ["Ladies Watch", "Mens Watch", "Ladies Sunglasses", "Mens Sun
 
 
 // Constants for validation
-const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15MB
-const MAX_VIDEO_SIZE = 30 * 1024 * 1024; // 30MB
+const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_VIDEO_SIZE = 80 * 1024 * 1024; // 80MB
 
 const AddProduct = ({ setProducts }) => {
   const navigate = useNavigate();
@@ -97,7 +97,7 @@ const AddProduct = ({ setProducts }) => {
   const renderFileInput = (name, label, accept = "image/*", isVideo = false) => (
     <div className="flex flex-col gap-2">
       <label className="block text-sm font-medium text-gray-700">
-        {label} <span className="text-xs text-gray-400">({isVideo ? 'Max 30MB' : 'Max 15MB'})</span>
+        {label} <span className="text-xs text-gray-400">({isVideo ? 'Max 80MB' : 'Max 50MB'})</span>
       </label>
       <div className="flex items-center gap-4">
         <div className="flex-1 relative border-2 border-dashed border-gray-300 rounded-lg p-4 hover:bg-gray-50 transition-colors text-center cursor-pointer">
