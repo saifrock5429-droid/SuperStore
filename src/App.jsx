@@ -102,7 +102,7 @@ const App = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("https://super-store-backend.vercel.app/api/v1/products/all");
+        const res = await axios.get("super-store-backend-teal.vercel.app/api/v1/products/all");
         setProducts(res.data);
       } catch (err) {
         console.error("Error loading products:", err);
