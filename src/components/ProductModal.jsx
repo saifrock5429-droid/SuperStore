@@ -26,7 +26,7 @@ const ProductModal = ({ product, onClose }) => {
 
   const buyOnWhatsApp = () => {
      const msg = `*New Order*\nProduct: ${product.name}\nQuantity: ${quantity}\nCategory: ${product.category}\nPrice: ₹${product.price}\nImage: ${product.image}`;
-    window.open(`https://wa.me/918080250796?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/918976067924?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   return (
