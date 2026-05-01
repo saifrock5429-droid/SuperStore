@@ -78,7 +78,7 @@ const AddProduct = ({ setProducts }) => {
     });
 
     try {
-      const res = await axios.post("https://super-store-backend.vercel.app/api/v1/products/add", data, {
+      const res = await axios.post("https://super-store-backend-teal.vercel.app/api/v1/products/add", data, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
