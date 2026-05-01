@@ -18,7 +18,7 @@ const ManageProducts = ({ products, setProducts }) => {
       
       try {
         // Make sure your backend route matches this URL
-        const res = await axios.delete(`https://super-store-backend.vercel.app/api/v1/products/delete/${id}`);
+        const res = await axios.delete(`https://super-store-backend-teal.vercel.app/api/v1/products/delete/${id}`);
         
         if (res.status === 200) {
           // Remove from local state using MongoDB's _id
