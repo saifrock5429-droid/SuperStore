@@ -1,12 +1,64 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router';
 
 const categories = ["Ladies Watch", "Mens Watch", "Ladies Sunglasses", "Mens Sunglasses"];
 
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB (Cloudinary free tier limit)
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 100MB (Cloudinary free tier limit)
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; 
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; 
+
+
+const compressImage = (file, quality = 0.8) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width = img.width;
+        let height = img.height;
+        const MAX_WIDTH = 1920; 
+        const MAX_HEIGHT = 1080;
+        
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            reject(new Error("Canvas to Blob failed"));
+          }
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+};
 
 const AddProduct = ({ setProducts }) => {
   const navigate = useNavigate();
@@ -35,9 +87,9 @@ const AddProduct = ({ setProducts }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const { name } = e.target;
-    const file = e.target.files[0];
+    let file = e.target.files[0];
 
     if (file) {
       const isVideo = file.type.startsWith('video/');
@@ -47,6 +99,16 @@ const AddProduct = ({ setProducts }) => {
         alert(`File too large! Max size: ${limit / (1024 * 1024)}MB`);
         e.target.value = ""; 
         return;
+      }
+
+     
+      if (!isVideo) {
+        try {
+          file = await compressImage(file, 0.8);
+        } catch (err) {
+          console.error("Compression failed", err);
+          
+        }
       }
 
       setFiles(prev => ({ ...prev, [name]: file }));
