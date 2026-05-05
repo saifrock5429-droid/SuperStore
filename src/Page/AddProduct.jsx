@@ -5,9 +5,8 @@ import { Link, useNavigate } from 'react-router';
 const categories = ["Ladies Watch", "Mens Watch", "Ladies Sunglasses", "Mens Sunglasses"];
 
 
-// Constants for validation
-const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB
-const MAX_VIDEO_SIZE = 80 * 1024 * 1024; // 80MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB (Cloudinary free tier limit)
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 100MB (Cloudinary free tier limit)
 
 const AddProduct = ({ setProducts }) => {
   const navigate = useNavigate();
@@ -59,27 +58,66 @@ const AddProduct = ({ setProducts }) => {
     }
   };
 
+  // --- NEW: Helper function to upload a file directly to Cloudinary ---
+  // This completely bypasses the Vercel backend payload limit
+  const uploadToCloudinary = async (file, signatureData) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("api_key", signatureData.apiKey);
+    formData.append("timestamp", signatureData.timestamp);
+    formData.append("signature", signatureData.signature);
+    
+    // Explicitly set resource_type so Cloudinary doesn't accidentally treat a video as an image
+    const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+    
+    const res = await axios.post(
+      `https://api.cloudinary.com/v1_1/${signatureData.cloudName}/${resourceType}/upload`,
+      formData
+    );
+    return res.data.secure_url;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const data = new FormData();
-    data.append('name', formData.name);
-    data.append('category', formData.category);
-    data.append('price', formData.price);
-    data.append('originalPrice', formData.originalPrice);
-    
-    if (files.image) data.append('image', files.image);
-
-    // Append gallery items
-    const galleryKeys = ['galleryImg1', 'galleryImg2', 'galleryImg3', 'galleryImg4', 'galleryVideo'];
-    galleryKeys.forEach(key => {
-      if (files[key]) data.append(key, files[key]);
-    });
-
     try {
-      const res = await axios.post("https://super-store-backend-teal.vercel.app/api/v1/products/add", data, {
-        headers: { "Content-Type": "multipart/form-data" }
+      if (!files.image) {
+        alert("Main image is required");
+        setLoading(false);
+        return;
+      }
+
+      // 1. Fetch secure signature from our backend
+      // --- CHANGED: We now ask our backend for permission to upload directly ---
+      const sigRes = await axios.get("https://super-store-backend.vercel.app/api/v1/products/upload-signature");
+      const signatureData = sigRes.data;
+
+      // 2. Upload Main Image directly to Cloudinary
+      const mainImageUrl = await uploadToCloudinary(files.image, signatureData);
+
+      // 3. Upload Gallery Items directly to Cloudinary
+      const galleryKeys = ['galleryImg1', 'galleryImg2', 'galleryImg3', 'galleryImg4', 'galleryVideo'];
+      const uploadPromises = galleryKeys
+        .filter(key => files[key]) // only upload if file exists
+        .map(key => uploadToCloudinary(files[key], signatureData));
+      
+      // Wait for all gallery items to finish uploading
+      const galleryUrls = await Promise.all(uploadPromises);
+
+      // 4. Send the lightweight URLs to our backend to save the product
+      // --- CHANGED: Instead of FormData with heavy files, we send a small JSON ---
+      const productData = {
+        name: formData.name,
+        category: formData.category,
+        price: formData.price,
+        originalPrice: formData.originalPrice,
+        image: mainImageUrl,
+        galleryUrls: galleryUrls
+      };
+
+      const res = await axios.post("https://super-store-backend.vercel.app/api/v1/products/add", productData, {
+        headers: { "Content-Type": "application/json" } // Send as JSON now!
       });
 
       if (res.status === 201) {
@@ -88,7 +126,8 @@ const AddProduct = ({ setProducts }) => {
         navigate('/admin');
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Something went wrong during upload");
+      console.error("Upload error details:", error.response?.data || error);
+      alert(error.response?.data?.message || error.response?.data?.error?.message || "Something went wrong during upload");
     } finally {
       setLoading(false);
     }
@@ -97,7 +136,7 @@ const AddProduct = ({ setProducts }) => {
   const renderFileInput = (name, label, accept = "image/*", isVideo = false) => (
     <div className="flex flex-col gap-2">
       <label className="block text-sm font-medium text-gray-700">
-        {label} <span className="text-xs text-gray-400">({isVideo ? 'Max 80MB' : 'Max 50MB'})</span>
+        {label} <span className="text-xs text-gray-400">({isVideo ? 'Max 50MB' : 'Max 9MB'})</span>
       </label>
       <div className="flex items-center gap-4">
         <div className="flex-1 relative border-2 border-dashed border-gray-300 rounded-lg p-4 hover:bg-gray-50 transition-colors text-center cursor-pointer">
