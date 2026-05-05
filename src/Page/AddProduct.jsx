@@ -90,7 +90,7 @@ const AddProduct = ({ setProducts }) => {
 
       // 1. Fetch secure signature from our backend
       // --- CHANGED: We now ask our backend for permission to upload directly ---
-      const sigRes = await axios.get("https://super-store-backend.vercel.app/api/v1/products/upload-signature");
+      const sigRes = await axios.get("https://super-store-backend-teal.vercel.app/api/v1/products/upload-signature");
       const signatureData = sigRes.data;
 
       // 2. Upload Main Image directly to Cloudinary
@@ -116,7 +116,7 @@ const AddProduct = ({ setProducts }) => {
         galleryUrls: galleryUrls
       };
 
-      const res = await axios.post("https://super-store-backend.vercel.app/api/v1/products/add", productData, {
+      const res = await axios.post("https://super-store-backend-teal.vercel.app/api/v1/products/add", productData, {
         headers: { "Content-Type": "application/json" } // Send as JSON now!
       });
 
