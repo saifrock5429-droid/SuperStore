@@ -1,7 +1,7 @@
 import React from 'react';
 
 const CategoryButtons = ({ activeCategory, setActiveCategory }) => {
-  const cats = ["Ladies Watch", "Mens Watch", "Ladies Sunglasses", "Mens Sunglasses", "Belts", "All Bags", "Shoes", "All Categories"];
+  const cats = ["Ladies Watch", "Mens Watch", "Ladies Sunglasses", "Mens Sunglasses", "Belts & Wallets", "All Bags", "Shoes", "All Categories"];
 
   return (
     <div className="max-w-[95%] md:max-w-[80%] mx-auto my-8">
