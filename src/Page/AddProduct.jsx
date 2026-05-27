@@ -77,6 +77,7 @@ const AddProduct = ({ setProducts }) => {
     galleryImg2: null,
     galleryImg3: null,
     galleryImg4: null,
+    galleryImg5: null,
     galleryVideo: null
   });
 
@@ -159,7 +160,7 @@ const AddProduct = ({ setProducts }) => {
       const mainImageUrl = await uploadToCloudinary(files.image, signatureData);
 
       // 3. Upload Gallery Items directly to Cloudinary
-      const galleryKeys = ['galleryImg1', 'galleryImg2', 'galleryImg3', 'galleryImg4', 'galleryVideo'];
+      const galleryKeys = ['galleryImg1', 'galleryImg2', 'galleryImg3', 'galleryImg4', 'galleryImg5', 'galleryVideo'];
       const uploadPromises = galleryKeys
         .filter(key => files[key]) // only upload if file exists
         .map(key => uploadToCloudinary(files[key], signatureData));
@@ -254,6 +255,7 @@ const AddProduct = ({ setProducts }) => {
               {renderFileInput('galleryImg2', 'Gallery 2')}
               {renderFileInput('galleryImg3', 'Gallery 3')}
               {renderFileInput('galleryImg4', 'Gallery 4')}
+              {renderFileInput('galleryImg5', 'Gallery 5')}
               <div className="md:col-span-2">{renderFileInput('galleryVideo', 'Gallery Video', 'video/*', true)}</div>
             </div>
           </div>

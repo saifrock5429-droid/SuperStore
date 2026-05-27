@@ -164,7 +164,7 @@ const ProductModal = ({ product, onClose }) => {
 
   const images = allMedia
     .filter(url => !isVideo(url))
-    .slice(0, 4);
+    .slice(0, 6);
 
   const productVideo = allMedia.find(url => isVideo(url));
 
