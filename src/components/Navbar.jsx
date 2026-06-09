@@ -1,5 +1,4 @@
 
-
 import logoImage from "../assets/logo.jpeg";
 
 const Navbar = ({ searchTerm, setSearchTerm }) => {
