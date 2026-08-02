@@ -740,7 +740,7 @@ const ProductModal = ({ product, onClose }) => {
       `Image: ${product.image}`;
 
     window.open(
-      `https://wa.me/918928460224?text=${encodeURIComponent(msg)}`,
+      `https://wa.me/918976067924?text=${encodeURIComponent(msg)}`,
       '_blank'
     );
   };
