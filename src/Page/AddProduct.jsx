@@ -5,7 +5,8 @@ import { Link, useNavigate } from 'react-router';
 // const categories = ["Ladies Watch", "Mens Watch", "Ladies Sunglasses", "Mens Sunglasses", "Belts & Wallets", "All Bags", "Shoes"];
 const categories = ["Ladies Sunglasses", "Mens Sunglasses"];
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; 
+// const MAX_IMAGE_SIZE = 10 * 1024 * 1024; 
+const MAX_IMAGE_SIZE = 20 * 1024 * 1024
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024; 
 
 
@@ -24,6 +25,7 @@ const compressImage = (file, quality = 0.8) => {
         let height = img.height;
         const MAX_WIDTH = 1920; 
         const MAX_HEIGHT = 1080;
+        
         
         if (width > height) {
           if (width > MAX_WIDTH) {
