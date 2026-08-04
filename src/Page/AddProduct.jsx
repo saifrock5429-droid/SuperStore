@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router';
 const categories = ["Ladies Sunglasses", "Mens Sunglasses"];
 
 // const MAX_IMAGE_SIZE = 10 * 1024 * 1024; 
-const MAX_IMAGE_SIZE = 20 * 1024 * 1024
+const MAX_IMAGE_SIZE = 25 * 1024 * 1024
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024; 
 
 
