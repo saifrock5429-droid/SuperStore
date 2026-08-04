@@ -201,7 +201,7 @@ const AddProduct = ({ setProducts }) => {
   const renderFileInput = (name, label, accept = "image/*", isVideo = false) => (
     <div className="flex flex-col gap-2">
       <label className="block text-sm font-medium text-gray-700">
-        {label} <span className="text-xs text-gray-400">({isVideo ? 'Max 50MB' : 'Max 9MB'})</span>
+        {label} <span className="text-xs text-gray-400">({isVideo ? 'Max 50MB' : 'Max 20MB'})</span>
       </label>
       <div className="flex items-center gap-4">
         <div className="flex-1 relative border-2 border-dashed border-gray-300 rounded-lg p-4 hover:bg-gray-50 transition-colors text-center cursor-pointer">
