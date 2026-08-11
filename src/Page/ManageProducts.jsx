@@ -187,7 +187,7 @@ const ManageProducts = ({ products, setProducts }) => {
       setDeletingId(id);
       try {
         const res = await axios.delete(`https://super-store-backend-teal.vercel.app/api/v1/products/delete/${id}`);
-        if (res.status === 200) {
+        if (res.status === 200 || res.status === 204) {
           setProducts(prev => prev.filter(p => p._id !== id));
         }
       } catch (error) {
@@ -264,7 +264,7 @@ const ManageProducts = ({ products, setProducts }) => {
       const mediaUrl = await uploadToCloudinary(file);
 
       setEditingProduct(prev => {
-        const updatedGallery = [...prev.galleryUrls];
+        const updatedGallery = [...(prev.galleryUrls || [])];
         if (replaceIndex !== null) {
           updatedGallery[replaceIndex] = mediaUrl;
         } else {
@@ -303,21 +303,27 @@ const ManageProducts = ({ products, setProducts }) => {
         galleryUrls: editingProduct.galleryUrls
       };
 
+      // Axios call with broader status validation & PUT request
       const res = await axios.put(
         `https://super-store-backend-teal.vercel.app/api/v1/products/edit/${editingProduct._id}`,
         payload,
-        { headers: { "Content-Type": "application/json" } }
+        { 
+          headers: { "Content-Type": "application/json" }
+        }
       );
 
-      if (res.status === 200) {
+      if (res.status === 200 || res.status === 201) {
         alert("Product updated successfully!");
-        const updatedItem = res.data.product || editingProduct;
+        
+        const updatedItem = res.data.product || res.data.updatedProduct || { ...editingProduct, ...payload };
+        
         setProducts(prev => prev.map(p => p._id === editingProduct._id ? updatedItem : p));
         setEditingProduct(null);
       }
     } catch (error) {
-      console.error("Update failed", error);
-      alert(error.response?.data?.message || "Failed to update product");
+      console.error("Update failed error:", error.response || error);
+      const errMsg = error.response?.data?.message || error.response?.data?.error || error.message || "Failed to update product";
+      alert(`Update Error: ${errMsg}`);
     } finally {
       setSaving(false);
     }
