@@ -802,7 +802,7 @@ const ProductModal = ({ product, onClose }) => {
             <img
               src={images[currentIndex]}
               alt="product"
-              className="w-full h-full object-contain object-cover"
+              className="w-full h-full"
             />
 
           </div>
