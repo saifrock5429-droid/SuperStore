@@ -98,7 +98,7 @@ const ManageProducts = ({ products, setProducts }) => {
   const handleOpenEdit = (product) => {
     setEditingProduct({
       ...product,
-      galleryUrls: product.galleryUrls || []
+      galleryUrls: product.gallery || product.galleryUrls || []
     });
   };
 
@@ -134,7 +134,7 @@ const ManageProducts = ({ products, setProducts }) => {
     setUploadingImage(true);
     try {
       if (!file.type.startsWith('video/')) {
-        file = await compressImage(file, 0.8);
+        file = await compressImage(file);
       }
       const imageUrl = await uploadToCloudinary(file);
       setEditingProduct(prev => ({ ...prev, image: imageUrl }));
@@ -154,7 +154,7 @@ const ManageProducts = ({ products, setProducts }) => {
     setUploadingImage(true);
     try {
       if (!file.type.startsWith('video/')) {
-        file = await compressImage(file, 0.8);
+        file = await compressImage(file);
       }
       const mediaUrl = await uploadToCloudinary(file);
 
