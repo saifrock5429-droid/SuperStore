@@ -8,7 +8,7 @@
 //   useEffect(() => {
 //     // Current state record karne ke liye taaki iOS transition lock na ho
 //     const currentState = { modalOpen: true };
-    
+
 //     // History me ek naya state add karo jab modal screen par aaye
 //     window.history.pushState(currentState, "", window.location.href);
 
@@ -402,7 +402,7 @@ const ProductModal = ({ product, onClose }) => {
             <img
               src={images[currentIndex]}
               alt="product"
-              className="w-full h-full object-contain p-1"
+              className="w-[90%] h-[90%] object-cover  p-4"
             />
           </div>
 
