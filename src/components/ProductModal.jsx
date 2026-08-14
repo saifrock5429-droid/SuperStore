@@ -8,7 +8,7 @@
 //   useEffect(() => {
 //     // Current state record karne ke liye taaki iOS transition lock na ho
 //     const currentState = { modalOpen: true };
-    
+
 //     // History me ek naya state add karo jab modal screen par aaye
 //     window.history.pushState(currentState, "", window.location.href);
 
@@ -390,19 +390,19 @@ const ProductModal = ({ product, onClose }) => {
         </button>
 
         {/* LEFT SIDE: EXACT IMAGE DISPLAY */}
-        <div className="w-full md:w-1/2 flex flex-col items-center">
-          <div className="relative w-full max-w-[400px] h-[300px] sm:h-[380px] bg-gray-50 rounded-md overflow-hidden flex items-center justify-center border border-gray-200">
-            {images.length > 1 && (
-              <>
-                <button onClick={prevMedia} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow-md z-10 hover:bg-white text-gray-800">❮</button>
-                <button onClick={nextMedia} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow-md z-10 hover:bg-white text-gray-800">❯</button>
-              </>
-            )}
+        <div className="w-full md:w-1/2 flex flex-col items-center px-4 sm:px-6">
+          {/* Replaced fixed heights with an aspect ratio and adjusted the max-width */}
+          <div className="relative w-full max-w-[400px] sm:max-w-[500px] aspect-square bg-gray-50 rounded-md overflow-hidden flex items-center justify-center border border-gray-200"> {images.length > 1 && (
+            <>
+              <button onClick={prevMedia} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow-md z-10 hover:bg-white text-gray-800">❮</button>
+              <button onClick={nextMedia} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow-md z-10 hover:bg-white text-gray-800">❯</button>
+            </>
+          )}
 
             <img
               src={images[currentIndex]}
               alt="product"
-              className="w-full h-full object-contain p-1"
+              className="w-full h-full object-cover  p-1"
             />
           </div>
 

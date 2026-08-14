@@ -1,124 +1,16 @@
-// import React, { useState } from 'react';
-// import axios from 'axios';
-// import { Link } from 'react-router';
-
-// const ManageProducts = ({ products, setProducts }) => {
-//   const [activeCategory, setActiveCategory] = useState('All Categories');
-//   const [deletingId, setDeletingId] = useState(null);
-
-//   // const categories = ["Ladies Watch", "Mens Watch", "Ladies Sunglasses", "Mens Sunglasses", "Belts & Wallets", "All Bags", "Shoes", "All Categories"];
-// const categories = ["Ladies Sunglasses", "Mens Sunglasses","All Categories"];
-
-
-
-//   const filteredProducts = activeCategory === 'All Categories' 
-//     ? products 
-//     : products.filter(p => p.category === activeCategory);
-
-//   const handleDelete = async (id) => {
-//     if (window.confirm('Are you sure you want to delete this product? This will also remove the media from the database.')) {
-//       setDeletingId(id);
-      
-//       try {
-//         // Make sure your backend route matches this URL
-//         const res = await axios.delete(`https://super-store-backend-teal.vercel.app/api/v1/products/delete/${id}`);
-        
-//         if (res.status === 200) {
-//           // Remove from local state using MongoDB's _id
-//           setProducts(prev => prev.filter(p => p._id !== id));
-//         }
-//       } catch (error) {
-//         console.error(error);
-//         alert(error.response?.data?.message || 'Failed to delete product');
-//       } finally {
-//         setDeletingId(null);
-//       }
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-//       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        
-//         {/* Header */}
-//         <div className="bg-red-600 py-6 px-8 flex justify-between items-center text-white">
-//           <div>
-//             <h2 className="text-2xl font-bold">Delete Products</h2>
-//             <p className="text-red-100 text-sm mt-1">Manage and remove products from your store.</p>
-//           </div>
-//           <Link to="/admin" className="hover:text-red-200 font-medium text-sm flex items-center gap-2 transition-colors">
-//             <span>←</span> Back to Admin
-//           </Link>
-//         </div>
-
-//         {/* Category Filters */}
-//         <div className="p-6 border-b bg-gray-50 flex flex-wrap gap-2">
-//           {categories.map(cat => (
-//             <button
-//               key={cat}
-//               onClick={() => setActiveCategory(cat)}
-//               className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-//                 activeCategory === cat 
-//                 ? 'bg-black text-white' 
-//                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
-//               }`}
-//             >
-//               {cat}
-//             </button>
-//           ))}
-//         </div>
-
-//         {/* Product List */}
-//         <div className="p-6">
-//           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-//             {filteredProducts.map(product => (
-//               <div key={product._id} className="border border-gray-200 rounded-lg p-4 flex flex-col items-center shadow-sm relative group bg-white">
-//                 <img src={product.image} alt={product.name} loading="lazy" className="w-full h-40 object-contain mb-4" />
-//                 <h3 className="font-bold text-gray-800 text-center text-sm mb-1 line-clamp-1">{product.name}</h3>
-//                 <p className="text-gray-500 text-xs mb-4">{product.category}</p>
-//                 <p className="text-gray-500 text-xs mb-4">Created Date: {product.createdAt.slice(0, 10)}</p>
-//                 <div className="flex items-center gap-2 mb-4">
-//                    <span className="font-bold text-lg">₹{Number(product.price).toLocaleString('en-IN')}</span>
-//                 </div>
-                
-//                 <button 
-//                   onClick={() => handleDelete(product._id)}
-//                   disabled={deletingId === product._id}
-//                   className={`w-full py-2 rounded-lg font-semibold transition-colors mt-auto flex justify-center items-center ${
-//                     deletingId === product._id 
-//                     ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-//                     : 'bg-red-100 text-red-600 hover:bg-red-600 hover:text-white'
-//                   }`}
-//                 >
-//                   {deletingId === product._id ? 'Deleting...' : 'Delete Product'}
-//                 </button>
-//               </div>
-//             ))}
-            
-//             {filteredProducts.length === 0 && (
-//               <div className="col-span-full py-16 text-center text-gray-500 italic">
-//                 No products found in this category.
-//               </div>
-//             )}
-//           </div>
-//         </div>
-
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ManageProducts;
-
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router';
 
 const categories = ["Ladies Sunglasses", "Mens Sunglasses", "All Categories"];
 
 // Image compression helper
-const compressImage = (file, quality = 0.8) => {
+const compressImage = (
+  file,
+  quality = 0.95,       // 1. Raised default compression quality (0.90–0.95 is visually near-lossless)
+  maxWidth = 2560,     // 2. Higher resolution cap (2K instead of 1080p)
+  maxHeight = 1440
+) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -128,28 +20,32 @@ const compressImage = (file, quality = 0.8) => {
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
+
         let width = img.width;
         let height = img.height;
-        const MAX_WIDTH = 1920; 
-        const MAX_HEIGHT = 1080;
-        
+
+        // Maintain aspect ratio with higher resolution limits
         if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
           }
         } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
           }
         }
-        
+
         canvas.width = width;
         canvas.height = height;
+
+        // 3. Force maximum canvas resampling quality
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
         ctx.drawImage(img, 0, 0, width, height);
-        
+
         canvas.toBlob((blob) => {
           if (blob) {
             const compressedFile = new File([blob], file.name, {
@@ -167,18 +63,17 @@ const compressImage = (file, quality = 0.8) => {
     reader.onerror = (err) => reject(err);
   });
 };
-
 const ManageProducts = ({ products, setProducts }) => {
   const [activeCategory, setActiveCategory] = useState('All Categories');
   const [deletingId, setDeletingId] = useState(null);
-  
+
   // Edit Modal State
   const [editingProduct, setEditingProduct] = useState(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  const filteredProducts = activeCategory === 'All Categories' 
-    ? products 
+  const filteredProducts = activeCategory === 'All Categories'
+    ? products
     : products.filter(p => p.category === activeCategory);
 
   // --- DELETE PRODUCT ---
@@ -203,7 +98,7 @@ const ManageProducts = ({ products, setProducts }) => {
   const handleOpenEdit = (product) => {
     setEditingProduct({
       ...product,
-      galleryUrls: product.galleryUrls || []
+      galleryUrls: product.gallery || product.galleryUrls || []
     });
   };
 
@@ -239,7 +134,7 @@ const ManageProducts = ({ products, setProducts }) => {
     setUploadingImage(true);
     try {
       if (!file.type.startsWith('video/')) {
-        file = await compressImage(file, 0.8);
+        file = await compressImage(file);
       }
       const imageUrl = await uploadToCloudinary(file);
       setEditingProduct(prev => ({ ...prev, image: imageUrl }));
@@ -259,7 +154,7 @@ const ManageProducts = ({ products, setProducts }) => {
     setUploadingImage(true);
     try {
       if (!file.type.startsWith('video/')) {
-        file = await compressImage(file, 0.8);
+        file = await compressImage(file);
       }
       const mediaUrl = await uploadToCloudinary(file);
 
@@ -307,16 +202,16 @@ const ManageProducts = ({ products, setProducts }) => {
       const res = await axios.put(
         `https://super-store-backend-teal.vercel.app/api/v1/products/edit/${editingProduct._id}`,
         payload,
-        { 
+        {
           headers: { "Content-Type": "application/json" }
         }
       );
 
       if (res.status === 200 || res.status === 201) {
         alert("Product updated successfully!");
-        
+
         const updatedItem = res.data.product || res.data.updatedProduct || { ...editingProduct, ...payload };
-        
+
         setProducts(prev => prev.map(p => p._id === editingProduct._id ? updatedItem : p));
         setEditingProduct(null);
       }
@@ -332,7 +227,7 @@ const ManageProducts = ({ products, setProducts }) => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        
+
         {/* Header */}
         <div className="bg-black py-6 px-8 flex justify-between items-center text-white">
           <div>
@@ -350,11 +245,10 @@ const ManageProducts = ({ products, setProducts }) => {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                activeCategory === cat 
-                ? 'bg-black text-white' 
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${activeCategory === cat
+                ? 'bg-black text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
-              }`}
+                }`}
             >
               {cat}
             </button>
@@ -369,7 +263,7 @@ const ManageProducts = ({ products, setProducts }) => {
                 <img src={product.image} alt={product.name} loading="lazy" className="w-full h-40 object-contain mb-4 rounded-lg bg-gray-50" />
                 <h3 className="font-bold text-gray-800 text-center text-sm mb-1 line-clamp-1">{product.name}</h3>
                 <p className="text-gray-500 text-xs mb-2">{product.category}</p>
-                
+
                 <div className="flex items-center gap-2 mb-4">
                   <span className="font-bold text-lg text-black">₹{Number(product.price).toLocaleString('en-IN')}</span>
                   {product.originalPrice && (
@@ -379,13 +273,13 @@ const ManageProducts = ({ products, setProducts }) => {
 
                 {/* Actions */}
                 <div className="w-full flex gap-2 mt-auto">
-                  <button 
+                  <button
                     onClick={() => handleOpenEdit(product)}
                     className="flex-1 py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-600 hover:text-white transition-colors text-sm"
                   >
                     Edit / Price
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDelete(product._id)}
                     disabled={deletingId === product._id}
                     className="px-3 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-600 hover:text-white transition-colors text-sm"
@@ -395,7 +289,7 @@ const ManageProducts = ({ products, setProducts }) => {
                 </div>
               </div>
             ))}
-            
+
             {filteredProducts.length === 0 && (
               <div className="col-span-full py-16 text-center text-gray-500 italic">
                 No products found in this category.
@@ -410,8 +304,8 @@ const ManageProducts = ({ products, setProducts }) => {
       {editingProduct && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto">
-            <button 
-              onClick={() => setEditingProduct(null)} 
+            <button
+              onClick={() => setEditingProduct(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-black font-bold text-xl"
             >
               ✕
@@ -424,22 +318,22 @@ const ManageProducts = ({ products, setProducts }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Product Name</label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    value={editingProduct.name} 
-                    onChange={handleInputChange} 
-                    required 
-                    className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-black outline-none" 
+                  <input
+                    type="text"
+                    name="name"
+                    value={editingProduct.name}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-black outline-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Category</label>
-                  <select 
-                    name="category" 
-                    value={editingProduct.category} 
-                    onChange={handleInputChange} 
+                  <select
+                    name="category"
+                    value={editingProduct.category}
+                    onChange={handleInputChange}
                     className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-black outline-none"
                   >
                     {categories.filter(c => c !== 'All Categories').map(cat => (
@@ -450,25 +344,25 @@ const ManageProducts = ({ products, setProducts }) => {
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Selling Price (₹)</label>
-                  <input 
-                    type="number" 
-                    name="price" 
-                    value={editingProduct.price} 
-                    onChange={handleInputChange} 
-                    required 
-                    className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-black outline-none font-semibold text-green-700" 
+                  <input
+                    type="number"
+                    name="price"
+                    value={editingProduct.price}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-black outline-none font-semibold text-green-700"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Original Price (MRP ₹)</label>
-                  <input 
-                    type="number" 
-                    name="originalPrice" 
-                    value={editingProduct.originalPrice} 
-                    onChange={handleInputChange} 
-                    required 
-                    className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-black outline-none" 
+                  <input
+                    type="number"
+                    name="originalPrice"
+                    value={editingProduct.originalPrice}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-black outline-none"
                   />
                 </div>
               </div>
@@ -503,11 +397,11 @@ const ManageProducts = ({ products, setProducts }) => {
                       ) : (
                         <img src={url} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
                       )}
-                      
+
                       {/* Delete Overlay */}
-                      <button 
-                        type="button" 
-                        onClick={() => handleDeleteGalleryItem(idx)} 
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteGalleryItem(idx)}
                         className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow hover:bg-red-700"
                         title="Delete Media"
                       >
@@ -526,16 +420,16 @@ const ManageProducts = ({ products, setProducts }) => {
 
               {/* Actions */}
               <div className="flex justify-end gap-3 border-t pt-4">
-                <button 
-                  type="button" 
-                  onClick={() => setEditingProduct(null)} 
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
                   className="px-5 py-2.5 text-gray-600 border rounded-xl text-sm font-semibold hover:bg-gray-100"
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
-                  disabled={saving || uploadingImage} 
+                <button
+                  type="submit"
+                  disabled={saving || uploadingImage}
                   className="px-6 py-2.5 bg-black text-white rounded-xl text-sm font-bold hover:bg-gray-800 disabled:bg-gray-400"
                 >
                   {uploadingImage ? 'Uploading Media...' : saving ? 'Saving Changes...' : 'Save Changes'}
